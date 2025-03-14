@@ -17,6 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "config_common.h"
+
+/* USB Device descriptor parameter */
+#define VENDOR_ID    0xFEED
+#define PRODUCT_ID   0x6512
+#define DEVICE_VER   0x0001
+#define MANUFACTURER QMK
+#define PRODUCT      XT keyboard converter
 
 /* key matrix size */
 #define MATRIX_ROWS 16  // keycode bit: 3-0
@@ -24,8 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* key combination for command */
 #define IS_COMMAND() ( \
-    get_mods() == (MOD_BIT(KC_LSFT) | MOD_BIT(KC_RSFT)) || \
-    get_mods() == (MOD_BIT(KC_LCTL) | MOD_BIT(KC_RSFT)) \
+    get_mods() == (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_RSHIFT)) || \
+    get_mods() == (MOD_BIT(KC_LCTRL) | MOD_BIT(KC_RSHIFT)) \
 )
 
 #define XT_CLOCK_PIN D1
@@ -34,10 +42,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* hard reset: low pulse for 500ms and after that HiZ for safety */
 #define XT_RESET() do { \
-    gpio_write_pin_low(XT_RST_PIN); \
-    gpio_set_pin_output(XT_RST_PIN); \
+    writePinLow(XT_RST_PIN); \
+    setPinOutput(XT_RST_PIN); \
     wait_ms(500); \
-    gpio_set_pin_input(XT_RST_PIN); \
+    setPinInput(XT_RST_PIN); \
 } while (0)
 
 /* INT1 for falling edge of clock line */

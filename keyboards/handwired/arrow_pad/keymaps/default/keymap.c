@@ -27,29 +27,29 @@ enum custom_keycodes {
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
-[LAYER_BASE] = LAYOUT(
-  KC_ESC,  KC_TAB,  KC_BSLS, MO(2),
-  KC_NUM,  KC_PSLS, KC_PAST, KC_PMNS,
-  KC_P7,   KC_P8,   KC_P9,   KC_PEQL,
-  KC_P4,   KC_P5,   KC_P6,   KC_PPLS,
-  KC_P1,   KC_P2,   KC_P3,   XXXXXXX,
+[LAYER_BASE] = LAYOUT(                \
+  KC_ESC,  KC_TAB,  KC_BSLS, MO(2),   \
+  KC_NLCK, KC_PSLS, KC_PAST, KC_PMNS, \
+  KC_P7,   KC_P8,   KC_P9,   KC_PEQL, \
+  KC_P4,   KC_P5,   KC_P6,   KC_PPLS, \
+  KC_P1,   KC_P2,   KC_P3,   XXXXXXX, \
   KC_P0,   KC_PCMM, KC_PDOT, KC_PENT  ),
 
-[LAYER_EDIT] = LAYOUT(
-  KC_ESC,  KC_TAB,  KC_SPC,  _______,
-  TG(1),   SC_PSTE, SC_REDO, SC_UNDO,
-  KC_HOME, KC_UP,   KC_PGUP, KC_LALT,
-  KC_LEFT, M_COPY,  KC_RGHT, KC_LCTL,
-  KC_END,  KC_DOWN, KC_PGDN, XXXXXXX,
+[LAYER_EDIT] = LAYOUT(                \
+  KC_ESC,  KC_TAB,  KC_SPC,  _______, \
+  TG(1),   SC_PSTE, SC_REDO, SC_UNDO, \
+  KC_HOME, KC_UP,   KC_PGUP, KC_LALT, \
+  KC_LEFT, M_COPY,  KC_RGHT, KC_LCTL, \
+  KC_END,  KC_DOWN, KC_PGDN, XXXXXXX, \
   KC_BSPC, KC_PENT, KC_DEL,  M_SHFCT  ),
 
-[LAYER_FUNCTION] = LAYOUT(
-  BL_TOGG, BL_UP,   BL_DOWN, _______,
-  TG(1),   _______, _______, _______,
-  _______, _______, _______, _______,
-  _______, _______, _______, _______,
-  _______, _______, _______, XXXXXXX,
-  QK_BOOT, _______, _______, _______  ),
+[LAYER_FUNCTION] = LAYOUT(            \
+  BL_TOGG, BL_INC,  BL_DEC,  _______, \
+  TG(1),   _______, _______, _______, \
+  _______, _______, _______, _______, \
+  _______, _______, _______, _______, \
+  _______, _______, _______, XXXXXXX, \
+  RESET,   _______, _______, _______  ),
 
 };
 
@@ -96,23 +96,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t * record) {
   return true;
 }
 
-bool led_update_user(led_t led_state)
+void led_set_user(uint8_t usb_led)
 {
-    if (led_state.caps_lock) {
+    if (usb_led & (1<<USB_LED_CAPS_LOCK)) {
         // output high
-        gpio_set_pin_output(D6);
-        gpio_write_pin_high(D6);
+        DDRD |= (1<<6);
+        PORTD |= (1<<6);
     } else {
         // Hi-Z
-        gpio_set_pin_input(D6);
+        DDRD &= ~(1<<6);
+        PORTD &= ~(1<<6);
     }
-    if (led_state.num_lock) {
+    if (usb_led & (1<<USB_LED_NUM_LOCK)) {
         // output low
-        gpio_set_pin_output(C7);
-        gpio_write_pin_low(C7);
+        DDRC |= (1<<7);
+        PORTC |= ~(1<<7);
     } else {
         // Hi-Z
-        gpio_set_pin_input(C7);
+        DDRC &= ~(1<<7);
+        PORTC &= ~(1<<7);
     }
-    return false;
 }

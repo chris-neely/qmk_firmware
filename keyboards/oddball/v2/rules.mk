@@ -1,1 +1,2 @@
-POINTING_DEVICE_DRIVER = adns9800
+# Elite C
+BOOTLOADER = qmk-dfu

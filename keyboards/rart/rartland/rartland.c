@@ -12,13 +12,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "quantum.h"
+#include "rartland.h"
 
-#ifdef OLED_ENABLE
-bool oled_task_kb(void) {
-    if (!oled_task_user()) {
-        return false;
+#ifdef ENCODER_ENABLE
+bool encoder_update_kb(uint8_t index, bool clockwise) {
+    if (!encoder_update_user(index, clockwise)) { return false; }
+    switch (index) {
+        case 0:
+            if (clockwise) {
+                tap_code(KC_VOLU);
+            } else {
+                tap_code(KC_VOLD);
+            }
+        break;
     }
+    return true;
+}
+#endif
+
+#ifdef OLED_DRIVER_ENABLE
+__attribute__((weak)) void oled_task_user(void) {
     // Host Keyboard Layer Status
     oled_write_P(PSTR("R A R T L A N D\nLayer: "), false);
 
@@ -39,7 +52,5 @@ bool oled_task_kb(void) {
     oled_write_P(led_state.num_lock ? PSTR("NUM ") : PSTR("    "), false);
     oled_write_P(led_state.caps_lock ? PSTR("CAP ") : PSTR("    "), false);
     oled_write_P(led_state.scroll_lock ? PSTR("SCR ") : PSTR("    "), false);
-
-    return false;
 }
 #endif

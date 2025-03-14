@@ -89,7 +89,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 *
 */
 	LAYOUT(
-		KC_TRNS, KC_TRNS, QK_BOOT, TO(0), TO(1), TO(2)),
+		KC_TRNS, KC_TRNS, RESET, TO(0), TO(1), TO(2)),
 
 // More Layers that can be used, but are not by default
 
@@ -135,51 +135,51 @@ void set_switch_led(int ledId, bool state) {
 	if(state) {
 		switch(ledId) {
 			case 1:
-				gpio_write_pin_high(D7);
+				PORTD |= (1<<7);
 				break;
 			case 2:
-				if(gpio_read_pin(B7)) {
-					gpio_write_pin_high(C6);
+				if((PINB & (1 << 7)) != 0) {
+					PORTC |= (1<<6);
 				} else {
-					gpio_write_pin_high(C7);
+					PORTC |= (1<<7);
 				}
 				break;
 			case 3:
-				gpio_write_pin_high(D4);
+				PORTD |= (1<<4);
 				break;
 			case 4:
-				gpio_write_pin_high(E6);
+				PORTE |= (1<<6);
 				break;
 			case 5:
-				gpio_write_pin_high(B4);
+				PORTB |= (1<<4);
 				break;
 			case 6:
-				gpio_write_pin_high(D6);
+				PORTD |= (1<<6);
 				break;
 		}
 	} else {
 		switch(ledId) {
 			case 1:
-				gpio_write_pin_low(D7);
+				PORTD &= ~(1<<7);
 				break;
 			case 2:
-				if(gpio_read_pin(B7)) {
-					gpio_write_pin_low(C6);
+				if((PINB & (1 << 7)) != 0) {
+					PORTC &= ~(1<<6);
 				} else {
-					gpio_write_pin_low(C7);
+					PORTC &= ~(1<<7);
 				}
 				break;
 			case 3:
-				gpio_write_pin_low(D4);
+				PORTD &= ~(1<<4);
 				break;
 			case 4:
-				gpio_write_pin_low(E6);
+				PORTE &= ~(1<<6);
 				break;
 			case 5:
-				gpio_write_pin_low(B4);
+				PORTB &= ~(1<<4);
 				break;
 			case 6:
-				gpio_write_pin_low(D6);
+				PORTD &= ~(1<<6);
 				break;
 		}
 	}
@@ -187,91 +187,129 @@ void set_switch_led(int ledId, bool state) {
 
 
 void set_layer_led(int layerId) {
-	gpio_write_pin_high(D5);
-	gpio_write_pin_low(B6);
-	gpio_write_pin_high(B0);
+	PORTD |= (1<<5);
+	PORTB &= ~(1<<6);
+	PORTB |= (1<<0);
 	switch(layerId) {
 		case 0:
-			gpio_write_pin_low(D5);
+			PORTD &= ~(1<<5);
 			break;
 		case 1:
-			gpio_write_pin_high(B6);
+			PORTB |= (1<<6);
 			break;
 		case 2:
-			gpio_write_pin_low(B0);
+			PORTB &= ~(1<<0);
 			break;
 	}
 }
 
-void led_init_ports_user(void) {
-  // led voor switch #1
-	gpio_set_pin_output(D7);
-	gpio_write_pin_low(D7);
-
-  // led voor switch #2
-	gpio_set_pin_output(C6);
-	gpio_set_pin_output(C7);
-	gpio_write_pin_low(C6);
-	gpio_write_pin_low(C7);
-
-  // led voor switch #3
-	gpio_set_pin_output(D4);
-	gpio_write_pin_low(D4);
-
-  // led voor switch #4
-	gpio_set_pin_output(E6);
-	gpio_write_pin_low(E6);
-
-  // led voor switch #5
-	gpio_set_pin_output(B4);
-	gpio_write_pin_low(B4);
-
-  // led voor switch #6
-	gpio_set_pin_output(D6);
-	gpio_write_pin_low(D6);
-
-	/*
-	gpio_set_pin_output(D7);
-	gpio_write_pin_high(D7);
-
-	gpio_set_pin_output(C6);
-	gpio_write_pin_high(C6);
-
-	gpio_set_pin_output(D4);
-	gpio_write_pin_high(D4);
-
-	gpio_set_pin_output(E6);
-	gpio_write_pin_high(E6);
-
-	gpio_set_pin_output(B4);
-	gpio_write_pin_high(B4);
-
-	gpio_set_pin_output(D6);
-	gpio_write_pin_high(D6);
-	// */
-
-	gpio_set_pin_output(D5);
-	gpio_set_pin_output(B6);
-	gpio_set_pin_output(B0);
-	//led_set_layer(0);
-}
-
 void matrix_init_user(void) {
-	led_init_ports_user();
+	led_init_ports();
 
-	gpio_write_pin_high(B7);
-	gpio_set_pin_input(B7);
+	PORTB |= (1 << 7);
+	DDRB &= ~(1<<7);
 
-	gpio_write_pin_high(D7);
-	gpio_write_pin_high(C6);
-	gpio_write_pin_high(C7);
-	gpio_write_pin_high(D4);
-	gpio_write_pin_high(E6);
-	gpio_write_pin_high(B4);
-	gpio_write_pin_high(D6);
+	PORTD |= (1<<7);
+	PORTC |= (1<<6);
+	PORTC |= (1<<7);
+	PORTD |= (1<<4);
+	PORTE |= (1<<6);
+	PORTB |= (1<<4);
+	PORTD |= (1<<6);
 
 	set_layer_led(0);
 }
+
+void matrix_scan_user(void) {
+}
+
+void led_init_ports() {
+  // led voor switch #1
+	DDRD |= (1<<7);
+	PORTD &= ~(1<<7);
+
+  // led voor switch #2
+	DDRC |= (1<<6);
+	DDRC |= (1<<7);
+	PORTC &= ~(1<<6);
+	PORTC &= ~(1<<7);
+
+  // led voor switch #3
+	DDRD |= (1<<4);
+	PORTD &= ~(1<<4);
+
+  // led voor switch #4
+	DDRE |= (1<<6);
+	PORTE &= ~(1<<6);
+
+  // led voor switch #5
+	DDRB |= (1<<4);
+	PORTB &= ~(1<<4);
+
+  // led voor switch #6
+	DDRD |= (1<<6);
+	PORTD &= ~(1<<6);
+
+	/*
+	DDRD |= (1<<7);
+	PORTD |= (1<<7);
+
+	DDRC |= (1<<6);
+	PORTC |= (1<<6);
+
+	DDRD |= (1<<4);
+	PORTD |= (1<<4);
+
+	DDRE |= (1<<6);
+	PORTE |= (1<<6);
+
+	DDRB |= (1<<4);
+	PORTB |= (1<<4);
+
+	DDRD |= (1<<6);
+	PORTD |= (1<<6);
+	// */
+
+	DDRD |= (1<<5);
+	DDRB |= (1<<6);
+	DDRB |= (1<<0);
+	//led_set_layer(0);
+}
+
+void led_set_user(uint8_t usb_led) {
+
+	if (usb_led & (1 << USB_LED_NUM_LOCK)) {
+
+	} else {
+
+	}
+
+	if (usb_led & (1 << USB_LED_CAPS_LOCK)) {
+
+	} else {
+
+	}
+
+	if (usb_led & (1 << USB_LED_SCROLL_LOCK)) {
+
+	} else {
+
+	}
+
+	if (usb_led & (1 << USB_LED_COMPOSE)) {
+
+	} else {
+
+	}
+
+	if (usb_led & (1 << USB_LED_KANA)) {
+
+	} else {
+
+	}
+
+}
+
 
 /*
 *   NOTE:

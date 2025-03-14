@@ -1,4 +1,4 @@
-/* Copyright 2021 Jay Greco
+/* Copyright 2020 Jay Greco
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,7 @@
  */
 #pragma once
 
-#include <stdint.h>
-#include "gpio.h"
+#include "quantum.h"
 
 /* Optional big LED pins */
 #define BIG_LED_R_PIN D7

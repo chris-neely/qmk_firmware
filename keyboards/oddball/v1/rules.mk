@@ -1,1 +1,2 @@
-POINTING_DEVICE_DRIVER = adns9800
+# Teensy 2.0
+BOOTLOADER = halfkay
