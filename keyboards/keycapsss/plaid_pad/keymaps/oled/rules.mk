@@ -1,3 +1,2 @@
-OLED_ENABLE = yes
+OLED_DRIVER_ENABLE = yes   # Enables the use of OLED displays
 COMBO_ENABLE = yes
-ENCODER_MAP_ENABLE = yes

@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "util.h"
 #include "matrix.h"
 #include "led.h"
+#include "config.h"
 
 #ifndef DEBOUNCE
 #   define DEBOUNCE	5
@@ -115,7 +116,7 @@ uint8_t matrix_scan(void)
         if (matrix_debouncing[i] != row) {
             matrix_debouncing[i] = row;
             if (debouncing) {
-                dprintf("bounce!: %02X\n", debouncing);
+                debug("bounce!: "); debug_hex(debouncing); debug("\n");
             }
             debouncing = DEBOUNCE;
         }
@@ -131,8 +132,14 @@ uint8_t matrix_scan(void)
             }
         }
     }
-    matrix_scan_kb();
+    matrix_scan_quantum();
     return 1;
+}
+
+bool matrix_is_modified(void)
+{
+    if (debouncing) return false;
+    return true;
 }
 
 inline
@@ -155,6 +162,15 @@ void matrix_print(void)
         print_bin_reverse8(matrix_get_row(row));
         print("\n");
     }
+}
+
+uint8_t matrix_key_count(void)
+{
+    uint8_t count = 0;
+    for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
+        count += bitpop16(matrix[i]);
+    }
+    return count;
 }
 
 static matrix_row_t read_row(uint8_t row)

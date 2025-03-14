@@ -27,10 +27,18 @@ uint8_t read_pin(uint16_t pin)
     return (data & (1<<GET_PIN(pin))) ? 1 : 0;
 }
 
-void housekeeping_task_kb(void) {
+void matrix_init_kb(void) {
+#ifdef RGBLIGHT_ENABLE
+    rgb_ring_init();
+#endif
+    matrix_init_user();
+}
+
+void matrix_scan_kb(void) {
 #ifdef RGBLIGHT_ENABLE
     rgb_ring_task();
 #endif
+    matrix_scan_user();
 }
 
 static uint16_t caps_lock_pin = DEF_PIN(TCA6424_PORT2, 3);
@@ -45,10 +53,28 @@ bool led_update_kb(led_t led_state) {
     return res;
 }
 
-#define REBOOT_MAGIC 0x41544B42
+// override the default implementation to avoid re-initialization
+void i2c_init(void)
+{
+    static bool initialized = false;
+    if (initialized) {
+        return;
+    } else {
+        initialized = true;
+    }
 
-void bootloader_jump(void) {
+    // Try releasing special pins for a short time
+    palSetPadMode(I2C1_SCL_BANK, I2C1_SCL, PAL_MODE_INPUT);
+    palSetPadMode(I2C1_SDA_BANK, I2C1_SDA, PAL_MODE_INPUT);
+
+    chThdSleepMilliseconds(10);
+    palSetPadMode(I2C1_SCL_BANK, I2C1_SCL, PAL_MODE_ALTERNATE(I2C1_SCL_PAL_MODE) | PAL_STM32_OTYPE_OPENDRAIN);
+    palSetPadMode(I2C1_SDA_BANK, I2C1_SDA, PAL_MODE_ALTERNATE(I2C1_SDA_PAL_MODE) | PAL_STM32_OTYPE_OPENDRAIN);
+}
+
+#define REBOOT_MAGIC 0x41544B42
+void shutdown_user(void)
+{
     // set the magic number for resetting to the bootloader
     *(uint32_t *)(&(RTCD1.rtc->BKP0R)) = REBOOT_MAGIC;
-    NVIC_SystemReset();
 }

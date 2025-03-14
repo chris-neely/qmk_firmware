@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "oled.h"
-#include "rubi.h"
+#include QMK_KEYBOARD_H
+#include "./lib/oled.h"
 
 bool process_record_user_oled(uint16_t keycode, keyrecord_t *record) {
     return process_record_user(keycode, record);
@@ -239,8 +239,7 @@ void render_frame(void) {
     }
 }
 
-bool oled_task_kb(void) {
-    if (!oled_task_user()) { return false; }
+__attribute__((weak)) void oled_task_user(void) {
     if (timer_elapsed(oled_frame_timer) > OLED_FRAME_TIMEOUT) {
         oled_clear();
         oled_frame_timer = timer_read();
@@ -260,10 +259,9 @@ bool oled_task_kb(void) {
     } else {
         oled_mode = OLED_MODE_DEFAULT;
     }
-    return false;
 }
 
-oled_rotation_t oled_init_kb(oled_rotation_t rotation) {
+oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     oled_logo_timer = timer_read();
     oled_frame_timer = timer_read();
     return rotation;
